@@ -4,7 +4,7 @@ var request = require('supertest');
 const db    = require('../');
 
 
-describe('User', function () {
+describe.only('User', function () {
   beforeEach(function (done) {
     db.User.destroy({ where : {} }) // drops table and re-creates it
     .then(function() {
@@ -17,7 +17,7 @@ describe('User', function () {
   });
 
   describe('Create', function () {
-    it.only ('validates missing email', function (done) {
+    it ('validates missing email', function (done) {
       request(app)
         .post('/api/v1/users')
         .send({ password: 'bobsPassword' })
@@ -34,5 +34,47 @@ describe('User', function () {
           }
         });
     });
+
+    it ('validates missing password', function (done) {
+      request(app)
+        .post('/api/v1/users')
+        .send({ email: 'bob@bob.com' })
+        .expect(422)
+        .expect('Content-Type', /json/)
+        .end(function (err, res) {
+          if (err) {
+            console.log('you have fucked up.');
+            console.log(err);
+            done(err);
+          } else {
+            expect(res.body.message).to.include('missing');
+            done();
+          }
+        });
+    });
+
+    it ('rejects if email exists', function (done) {
+      db.User.create({ email: 'bob@bob.com' })
+      .then(function(savedUser) {
+
+        request(app)
+          .post('/api/v1/users')
+          .send({ email: 'bob@bob.com', password: 'bobsPassword' })
+          .expect(422)
+          .expect('Content-Type', /json/)
+          .end(function (err, res) {
+            if (err) {
+              console.log('you have fucked up.');
+              console.log(err);
+              done(err);
+            } else {
+              expect(res.body.message).to.include('email');
+              done();
+            }
+          });
+      });
+    });
+
+    
   });
 });

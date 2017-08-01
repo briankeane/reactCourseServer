@@ -1,12 +1,15 @@
 'use strict';
 
+const bcrypt = require('bcrypt-nodejs');
+
 module.exports = function(sequelize, DataTypes) {
   var User = sequelize.define('User', {
     email: DataTypes.STRING,
-    password: DataTypes.STRING
+    password: DataTypes.STRING,
+    salt: DataTypes.String
   }, {
     setterMethods: {
-      email(value) {
+      email (value) {
         this.setDataValue('email', value.toLowerCase());
       }
     },
@@ -26,6 +29,19 @@ module.exports = function(sequelize, DataTypes) {
       }
     }
   });
+
+  var hashPasswordHook = function(instance, done) {
+    if (!instance.changed('password')) return done();
+    bcrypt.hash(instance.get('password'), 10, function (err, hash) {
+      if (err) return done(err);
+      instance.set('password', hash);
+      done();
+    });
+  };
+
+  User.beforeCreate(hashPasswordHook);
+  User.beforeUpdate(hashPasswordHook);
+
   return User;
 };
 
