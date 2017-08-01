@@ -21,7 +21,6 @@ var getFiles = function(path){
   function getAllNestedFiles(path) {
     var files = [];
     fs.readdirSync(path).forEach(function(file){
-      console.log('for each');
         var subpath = path + '/' + file;
         if(fs.lstatSync(subpath).isDirectory()){
           files = files.concat(getAllNestedFiles(subpath));
@@ -29,30 +28,20 @@ var getFiles = function(path){
           files.push(path + '/' + file);
         }
     });
-    console.log('inner files: ');
-    console.log(files);
     return files;
   }
 
   var files = getAllNestedFiles(path);
   var filteredFiles = files.filter(function (file) {
-    // console.log('file: ');
-    // console.log(file);
     if((file.indexOf(".") !== 0) && (file.indexOf(".model.js") > 0)) {
-      // console.log("debug", "Discovered path: " + path);
       return true;
     }
-    // console.log("nope");
     return false;
   });
-  console.log('filtered files');  
-  console.log(filteredFiles);
   return filteredFiles; 
 }
 
 var files = getFiles(__dirname);
-console.log('after all files: ');
-console.log(files);
 
 files.forEach(function (file) {
   var model = sequelize['import'](file);

@@ -1,23 +1,29 @@
 var db    = require('../');
+var db  = require('../');
+var expect = require('chai').expect;
 
-// var User      = models.User;
 
 describe('A user', function () {
-  it.only ('saves email and password', function (done) {
-    this.timeout(12000);
-    setTimeout(function () {
+  beforeEach(function (done) {
+    db.User.destroy({ where : {} }) // drops table and re-creates it
+    .then(function() {
+      done();
+    })
+    .error(function(error) {
+      done(error);
+    });
+  });
 
+  it.only ('saves email and password', function (done) {
     db.User.create({ email: 'bob@bob.com', password: 'bobsPassword' })
     .then(function (savedPerson) {
-      console.log('saved person:');
-      console.log(savedPerson);
       expect(savedPerson.email).to.equal('bob@bob.com');
       expect(savedPerson.password).to.equal('bobsPassword');
       done();
     }).catch(function (err) {
       console.log('err saving');
       console.log(err);
+      done(err);
     });
-    },3000);
   });
 });
