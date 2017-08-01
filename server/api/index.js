@@ -14,11 +14,9 @@ if (config.use_env_variable) {
   var sequelize = new Sequelize(config.db.database, config.db.username, config.db.password, config.db);
 }
 
-var files = [];
-
-var getFiles = function(path, files){
+var getFiles = function(path){
   var files = [];
-  fs.readdirSync(__dirname).forEach(function(file){
+  fs.readdirSync(path).forEach(function(file){
       var subpath = path + '/' + file;
       if(fs.lstatSync(subpath).isDirectory()){
           getFiles(subpath, files);
@@ -35,7 +33,7 @@ var getFiles = function(path, files){
   return files; 
 }
 
-var files = getFiles();
+var files = getFiles(__dirname);
 files.forEach(function (file) {
   var model = sequelize['import'](path.join(__dirname, file));
   db[model.name] = model;
