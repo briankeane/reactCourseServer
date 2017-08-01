@@ -1,16 +1,21 @@
 'use strict';
 
-const bcrypt = require('bcrypt-nodejs');
+const crypto = require('crypto');
 
 module.exports = function(sequelize, DataTypes) {
   var User = sequelize.define('User', {
     email: DataTypes.STRING,
     password: DataTypes.STRING,
-    salt: DataTypes.String
+    salt: DataTypes.STRING
   }, {
     setterMethods: {
       email (value) {
         this.setDataValue('email', value.toLowerCase());
+      },
+      password (value) {
+        const salt = this.makeSalt();
+        this.setDataValue('salt', salt);
+        this.setDataValue('password', this.encryptPassword(value));
       }
     },
     classMethods: {
@@ -24,23 +29,19 @@ module.exports = function(sequelize, DataTypes) {
       fields: ['email']
     }],
     instanceMethods: {
-      emailAndPassword: function () {
-        return `${this.email} ${this.password}`;
+      makeSalt: function () {
+        return crypto.randomBytes(16).toString('base64');
+      },
+      authenticate: function(plainText) {
+        return this.encryptPassword(plainText) === this.hashedPassword;
+      },
+      encryptPassword: function(password) {
+        if (!password || !this.salt) return '';
+        var salt = new Buffer(this.salt, 'base64');
+        return crypto.pbkdf2Sync(password, salt, 10000, 64, 'sha1').toString('base64');
       }
     }
   });
-
-  var hashPasswordHook = function(instance, done) {
-    if (!instance.changed('password')) return done();
-    bcrypt.hash(instance.get('password'), 10, function (err, hash) {
-      if (err) return done(err);
-      instance.set('password', hash);
-      done();
-    });
-  };
-
-  User.beforeCreate(hashPasswordHook);
-  User.beforeUpdate(hashPasswordHook);
 
   return User;
 };

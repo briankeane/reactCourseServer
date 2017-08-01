@@ -1,0 +1,26 @@
+{
+  "development": {
+    "username": "briankeane",
+    "password": null,
+    "database": "auth-dev",
+    "port": 5432,
+    "host": "127.0.0.1",
+    "dialect": "postgres"
+  },
+  "test": {
+    "username": "briankeane",
+    "password": null,
+    "database": "auth-test",
+    "port": 5432,
+    "host": "127.0.0.1",
+    "dialect": "postgres"
+  },
+  "production": {
+    "username": "briankeane",
+    "password": null,
+    "database": "auth-dev",
+    "port": 5432,
+    "host": "127.0.0.1",
+    "dialect": "postgres"
+  }
+}

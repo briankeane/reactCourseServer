@@ -1,6 +1,38 @@
 const path = require('path');
+const fs = require('fs');
 
+var getFiles = function(path){
+  var files = [];
+
+  function getAllNestedFiles(path) {
+    var files = [];
+    fs.readdirSync(path).forEach(function(file){
+        var subpath = path + '/' + file;
+        if(fs.lstatSync(subpath).isDirectory()){
+          files = files.concat(getAllNestedFiles(subpath));
+        } else {
+          files.push(path + '/' + file);
+        }
+    });
+    return files;
+  }
+
+  var files = getAllNestedFiles(path);
+  var filteredFiles = files.filter(function (file) {
+    if((file.indexOf(".") !== 0) && (file.indexOf(".model.js") > 0)) {
+      return true;
+    }
+    return false;
+  });
+  return filteredFiles; 
+}
+
+var files = getFiles(path.resolve('./server', 'api'));
+
+console.log(files);
 module.exports = {
+  "config": path.resolve('./server/config/environment/dbConfig.json'),
+  "models-path": '/Users/briankeane/code/learn/reactCourse/server/server/api/user',
   "seeders-path": path.resolve('./server/seeders'),
   "migrations-path": path.resolve('./server/migrations')
 }
