@@ -55,7 +55,7 @@ console.log('after all files: ');
 console.log(files);
 
 files.forEach(function (file) {
-  var model = sequelize['import'](path.join(__dirname, file));
+  var model = sequelize['import'](file);
   db[model.name] = model;
 });
 
