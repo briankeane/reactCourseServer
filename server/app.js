@@ -3,7 +3,7 @@
 const express     =   require('express');
 const config      =   require('./config/environment');
 const http        =   require('http');
-
+const Sequelize   =   require('sequelize');
 
 // if connecting to database, do it here.
 // Example: 
@@ -16,6 +16,8 @@ const http        =   require('http');
 //    });
 
 // setup server
+
+
 var app = express();
 var server = http.createServer(app);
 
