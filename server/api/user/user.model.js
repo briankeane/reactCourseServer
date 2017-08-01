@@ -11,11 +11,6 @@ module.exports = function(sequelize, DataTypes) {
     setterMethods: {
       email (value) {
         this.setDataValue('email', value.toLowerCase());
-      },
-      password (value) {
-        const salt = this.makeSalt();
-        this.setDataValue('salt', salt);
-        this.setDataValue('password', this.encryptPassword(value));
       }
     },
     classMethods: {
@@ -27,21 +22,30 @@ module.exports = function(sequelize, DataTypes) {
     {
       unique: true,
       fields: ['email']
-    }],
-    instanceMethods: {
-      makeSalt: function () {
-        return crypto.randomBytes(16).toString('base64');
-      },
-      authenticate: function(plainText) {
-        return this.encryptPassword(plainText) === this.hashedPassword;
-      },
-      encryptPassword: function(password) {
-        if (!password || !this.salt) return '';
-        var salt = new Buffer(this.salt, 'base64');
-        return crypto.pbkdf2Sync(password, salt, 10000, 64, 'sha1').toString('base64');
-      }
-    }
+    }]
   });
+
+  // instance methodss
+  User.prototype.setPassword = function (value) {
+    const salt = this.makeSalt();
+    const hashedPassword = this.encryptPassword(value, salt);
+    this.setDataValue('password', hashedPassword);
+    this.setDataValue('salt', salt);
+  };
+
+  User.prototype.makeSalt = function () {
+    return crypto.randomBytes(16).toString('base64');
+  };
+
+  User.prototype.encryptPassword = function(password, salt) {
+    if (!password || !salt) return '';
+    var salt = new Buffer(salt, 'base64');
+    return crypto.pbkdf2Sync(password, salt, 10000, 64, 'sha1').toString('base64');
+  };
+
+  User.prototype.authenticate = function(plainText) {
+    return this.encryptPassword(plainText, this.salt) === this.password;
+  };
 
   return User;
 };

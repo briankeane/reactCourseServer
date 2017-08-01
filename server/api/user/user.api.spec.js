@@ -56,7 +56,6 @@ describe.only('User', function () {
     it ('rejects if email exists', function (done) {
       db.User.create({ email: 'bob@bob.com' })
       .then(function(savedUser) {
-
         request(app)
           .post('/api/v1/users')
           .send({ email: 'bob@bob.com', password: 'bobsPassword' })
@@ -75,6 +74,30 @@ describe.only('User', function () {
       });
     });
 
-    
+    it ('works', function (done) {
+      request(app)
+        .post('/api/v1/users')
+        .send({ email: 'bob@bob.com', password: 'bobsPassword' })
+        .expect(200)
+        .expect('Content-Type', /json/)
+        .end(function (err, res) {
+          if (err) {
+            console.log('you have fucked up.');
+            console.log(err);
+            done(err);
+          } else {
+            db.User.findAll({
+              where: {
+                id: res.body.id
+              }
+            })
+            .then(function (foundUsers) {
+              expect(foundUsers.length).to.equal(1);    
+              expect(foundUsers[0].authenticate('bobsPassword')).to.equal(true);
+              done();
+            });
+          }
+        });
+    });
   });
 });
