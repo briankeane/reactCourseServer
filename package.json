@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "NODE_ENV=test mocha server --recursive",
-    "dev": "nodemon index.js"
+    "dev": "nodemon server index.js"
   },
   "author": "",
   "license": "ISC",

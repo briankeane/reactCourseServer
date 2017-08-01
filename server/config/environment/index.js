@@ -2,7 +2,6 @@
 
 const path = require('path');
 
-
 var commonConfig = {
   env: process.env.NODE_ENV,
 

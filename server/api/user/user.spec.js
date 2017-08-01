@@ -14,7 +14,7 @@ describe('A user', function () {
     });
   });
 
-  it.only ('saves email and password', function (done) {
+  it ('saves email and password', function (done) {
     db.User.create({ email: 'bob@bob.com', password: 'bobsPassword' })
     .then(function (savedPerson) {
       expect(savedPerson.email).to.equal('bob@bob.com');

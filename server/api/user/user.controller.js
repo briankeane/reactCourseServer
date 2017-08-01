@@ -1,27 +1,18 @@
-const sampleUsers = [
-  { id: 0,
-    name: 'bob',
-    email: 'bob@bob.com' },
-  { id: 1,
-    name: 'linda',
-    email: 'linda@linda.com' },
-  { id: 2,
-    name: 'bill',
-    email: 'bill@bill.com' }
-  ];
+const db = require('../');
 
-exports.index = function (req, res, next) {
-  return res.status(200).send({ users: sampleUsers });
-}
 
-exports.show = function (req, res, next) {
-  if (req.params.id > 2) {
-    return res.status(404).send({ message: 'user not found '});
-  } else {
-    return res.status(200).send({ user: sampleUsers[parseInt(req.params.id)] });
+exports.create = function (req, res, next) {
+  if (!req.body.email || !req.body.password) {
+    return res.status(422).send({ message: 'missing parameter: email or password '});
   }
-}
-
-exports.helloWorld = function (req, res, next) {
-  return res.status(200).send({ message: 'hello world' });
+  db.User.findAll({ where: { email: req.body.email.toLowerCase() } })
+  .then(function (foundUser) {
+    if (foundUser && foundUser.length) {
+      return res.status(422).send({ message: 'email is already in use' });
+    }
+    db.User.create({ email: req.body.email, password: req.body.password })
+    .then(function (savedUser) {
+      return res.status(200).send(savedUser);
+    })
+  })
 }
