@@ -8,6 +8,7 @@ var env       = process.env.NODE_ENV || 'development';
 var config    = require(__dirname + '/../config/environment');
 var db        = {};
 
+console.log('running index');
 if (config.use_env_variable) {
   var sequelize = new Sequelize(process.env[config.use_env_variable]);
 } else {
@@ -16,28 +17,48 @@ if (config.use_env_variable) {
 
 var getFiles = function(path){
   var files = [];
-  fs.readdirSync(path).forEach(function(file){
-      var subpath = path + '/' + file;
-      if(fs.lstatSync(subpath).isDirectory()){
-          getFiles(subpath, files);
-      } else {
+
+  function getAllNestedFiles(path) {
+    var files = [];
+    fs.readdirSync(path).forEach(function(file){
+      console.log('for each');
+        var subpath = path + '/' + file;
+        if(fs.lstatSync(subpath).isDirectory()){
+          files = files.concat(getAllNestedFiles(subpath));
+        } else {
           files.push(path + '/' + file);
-      }
-  });
-  files = files.filter(function (file) {
+        }
+    });
+    console.log('inner files: ');
+    console.log(files);
+    return files;
+  }
+
+  var files = getAllNestedFiles(path);
+  var filteredFiles = files.filter(function (file) {
+    // console.log('file: ');
+    // console.log(file);
     if((file.indexOf(".") !== 0) && (file.indexOf(".model.js") > 0)) {
-      console.log("debug", "Discovered path: " + path);
+      // console.log("debug", "Discovered path: " + path);
       return true;
     }
+    // console.log("nope");
+    return false;
   });
-  return files; 
+  console.log('filtered files');  
+  console.log(filteredFiles);
+  return filteredFiles; 
 }
 
 var files = getFiles(__dirname);
+console.log('after all files: ');
+console.log(files);
+
 files.forEach(function (file) {
   var model = sequelize['import'](path.join(__dirname, file));
   db[model.name] = model;
 });
+
 
 Object.keys(db).forEach(function(modelName) {
   if (db[modelName].associate) {
