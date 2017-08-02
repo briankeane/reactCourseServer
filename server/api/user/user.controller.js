@@ -1,5 +1,14 @@
 const db = require('../');
+const jwt = require('jwt-simple');
+const config = require('../../config/environment');
 
+function createUserToken(user) {
+  console.log(config);
+  const timestamp = new Date().getTime();         // JWT Conventions
+  return jwt.encode({ sub: user.id,               // sub: subject of token
+                      iat: new Date().getTime()   // iat: issued-at-time
+                    }, config.appSecret);
+}
 
 exports.create = function (req, res, next) {
   if (!req.body.email || !req.body.password) {
@@ -14,7 +23,7 @@ exports.create = function (req, res, next) {
     user.setPassword(req.body.password);
     user.save()
     .then(function (savedUser) {
-      return res.status(200).send(savedUser);
+      return res.status(200).send({ token: createUserToken(savedUser) });
     });
   });
 }

@@ -17,8 +17,12 @@ var localEnv;
 try {
   localEnv = require('../local.env');
 } catch (err) {
+  console.log('Missing or Invalid local.env file.  Relying entirely on ENV vars for config');
   localEnv = {};
 }
+
+console.log('local.env:');
+console.log(localEnv);
 
 function getEnvObject() {
   var envObject = {};
