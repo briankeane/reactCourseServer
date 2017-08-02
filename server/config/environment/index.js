@@ -9,7 +9,7 @@ var commonConfig = {
   root: path.normalize(__dirname + '/../../..'),
 
   // server port:
-  port: process.env.PORT || 9000
+  port: process.env.PORT || 3090
 };
 
 // grab file of secret stuff
