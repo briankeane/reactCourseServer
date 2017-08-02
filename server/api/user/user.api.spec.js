@@ -88,7 +88,7 @@ describe.only('User', function () {
           } else {
             db.User.findAll({
               where: {
-                id: res.body.id
+                email: 'bob@bob.com'
               }
             })
             .then(function (foundUsers) {
@@ -96,6 +96,69 @@ describe.only('User', function () {
               expect(foundUsers[0].authenticate('bobsPassword')).to.equal(true);
               done();
             });
+          }
+        });
+    });
+  });
+
+  describe('Sign In', function () {
+    var user;
+
+    beforeEach(function (done) {
+      user = db.User.build({ email: 'bob@bob.com' });
+      user.setPassword('bobsPassword');
+      user.save()
+      .then(function (savedUser) {
+        user = savedUser;
+        done();
+      });
+    });
+
+    it ('rejects if email is incorrect', function (done) {
+      request(app)
+        .post('/api/v1/users/login')
+        .send({ email: 'differentBob@bob.com', password: 'bobsPassword' })
+        .expect(401)
+        .end(function (err, res) {
+          if (err) {
+            console.log('you have fucked up.');
+            console.log(err);
+            done(err);
+          } else {
+            done();
+          }
+        });
+    });
+
+    it ('fails if email is not in the system', function (done) {
+      request(app)
+        .post('/api/v1/users/login')
+        .send({ email: 'bob@bob.com', password: 'bobsWrongPassword' })
+        .expect(401)
+        .end(function (err, res) {
+          if (err) {
+            console.log('you have fucked up.');
+            console.log(err);
+            done(err);
+          } else {
+            done();
+          }
+        });
+    });
+
+    it ('logs in a user', function (done) {
+      request(app)
+        .post('/api/v1/users/login')
+        .send({ email: 'bob@bob.com', password: 'bobsPassword' })
+        .expect(200)
+        .end(function (err, res) {
+          if (err) {
+            console.log('you have fucked up.');
+            console.log(err);
+            done(err);
+          } else {
+            expect(res.body.token).to.exist;
+            done();
           }
         });
     });

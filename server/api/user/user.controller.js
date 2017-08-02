@@ -3,7 +3,6 @@ const jwt = require('jwt-simple');
 const config = require('../../config/environment');
 
 function createUserToken(user) {
-  console.log(config);
   const timestamp = new Date().getTime();         // JWT Conventions
   return jwt.encode({ sub: user.id,               // sub: subject of token
                       iat: new Date().getTime()   // iat: issued-at-time
@@ -26,4 +25,9 @@ exports.create = function (req, res, next) {
       return res.status(200).send({ token: createUserToken(savedUser) });
     });
   });
+}
+
+exports.login = function (req, res, next) {
+  // login info checked by passport middleware, so if they got this far they answered correctly
+  return res.status(200).send({ token: createUserToken(req.user) });
 }
