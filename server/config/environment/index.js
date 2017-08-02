@@ -21,9 +21,6 @@ try {
   localEnv = {};
 }
 
-console.log('local.env:');
-console.log(localEnv);
-
 function getEnvObject() {
   var envObject = {};
   if (process.env.NODE_ENV) {
